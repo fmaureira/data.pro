@@ -1,0 +1,10 @@
+Package: data.pro
+Type: Package
+Title: This package is a utlity library that compile math and processing function and reading specific for external format provening of crop models (Title Case)
+Version: 0.1.0
+Author: Fidel Maureira
+Maintainer: The package maintainer <f.maureirasotomayor@wsu.edu>
+Description: This library processing data and read outputs from CropSyst model.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
