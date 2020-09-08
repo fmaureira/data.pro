@@ -34,7 +34,7 @@ read_htm_out<-function(connection){
   requireNamespace('XML')
   requireNamespace('RCurl')
   requireNamespace('rlist')
-  sink('.historialof_files.txt',append=TRUE)
+  sink('.historial_of_files.txt',append=TRUE)
   cat(paste(format(Sys.time(), "%b %d %r"),connection,'\n'))
   sink()
   full_path<-strsplit(dirname(connection),'Output')[[1]]

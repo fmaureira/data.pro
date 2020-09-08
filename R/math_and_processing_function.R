@@ -77,3 +77,80 @@ percentil_above<-function(x,critical_value,na.rm=TRUE) {
   x[x>y]<-y
   x/y
 }
+
+#Conversion of units from ####
+units_conversion<-function (value,unit_from, convertion_2finalunit=NULL){
+  #function convert to kg, ha, $ and percentage whatever is as numerator or denominator. Also can convert to other units if is provide a convertion factor.
+  #If does not find the unit of convertion return a unknown string
+  #from USDA-ERS, 1992 conversion units
+  #100 pounds = 1 cwt
+  #20 cwt = 1 ton
+  #1 kg = 2.204 pounds
+  #1 kg = 0.001102311 short tons
+  # 1 ha 2.471 acres
+  #define type of unit
+  units<-gsub(pattern = "\\s",
+              replacement = "",
+              x = as.character(unit_from))
+  units<-unlist(strsplit(units,'/'))
+  value<-as.numeric(value)
+  if (!is.null(convertion_2finalunit)) { #conversion is knew
+    values<-value*convertion_2finalunit
+  } else { #conversion is unkown
+    if (length(units)==1) { #single conversion
+      values<-determine_kind_of_unit(units,value)
+    } else { #unit is a ratio conversion
+      values<-c(determine_kind_of_unit(units[1],value),
+                determine_kind_of_unit(units[2],1)) #denomitor assumed the numerator is divide by a unit of denominator
+      msg<-unlist(lapply(values,  function (x) {if (is.na(x)) {NA}}))
+      if(!is.null(msg)) {values=msg} else {
+        if (values[2]==0) {values<- values[1]} else {values<- values[1]/values[2]}
+      }
+    }
+  }
+  return(values)
+}
+
+determine_kind_of_unit<- function (units,value) {
+  weight_units<-c('grams','g','kg','tons','ton','cwt', 'hundredweight','lb','lbs','pound','pounds','mpounds')
+  area_units<-c('ha', 'hectare','ac','acre','acres', 'sq m', 'square m', 'sq foot', 'sq ft')
+  units<-tolower(as.character(units))
+  if (units %in% weight_units) { #weight
+    'weight_units'
+    weight_conversion(units,value)
+  } else if (units %in% area_units) { #area
+    'area'
+    area_conversion(units,value)
+  } else if(grepl('$',units,fixed = TRUE)) { #monetary unit
+    'monetary_unit'
+    value
+  } else if(grepl('%',units,fixed = TRUE)|units %in% c('perc','percentage')) { #perc
+    "percentage"
+    value
+  }else {
+
+    'unknown'
+  }
+
+}
+
+weight_conversion<-function(units, value) {
+  weight_units<-c('grams','g','gr','kg','tons','ton','cwt', 'hundredweight','lb','lbs','pound','pounds', 'mpounds') #assumed tons is short tons. SII tons is metric tons
+  weight_conversion2kg<-c(1000,1000,1000,1,0.001102311,0.001102311,0.02204623,0.02204623,2.204623,2.204623,2.204623,2.204623,2.204623/10^6)
+
+  (1/weight_conversion2kg[grepl(units,weight_units,fixed=TRUE)][1])*value
+}
+
+area_conversion<-function(units, value) {
+  area_units<-c('ha', 'hectare','ac','acre','acres', 'sq m', 'square m', 'sq foot', 'sq ft')
+  area_conversion2ha<-c(1,1,2.471044,2.471044,2.471044,10000,10000,107638.7,107638.7)
+
+  (1/area_conversion2ha[grepl(units,area_units,fixed=TRUE)][1])*value
+}
+
+
+
+######
+
+
+
